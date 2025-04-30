@@ -1,3 +1,4 @@
+import { hash } from 'bcrypt';
 import mongoose from 'mongoose';
 import { any, ParseStatus, string } from "zod";
 const Schema = mongoose.Schema;
@@ -20,3 +21,10 @@ const contentSchema = new Schema({
 })
 
 export const contentModel  = mongoose.model("content", contentSchema)
+
+const linkSchema = new Schema({
+    hash: String,
+    userId: {type: ObjectId, ref: 'User', required: true, unique: true },
+})
+
+export const linkModel = mongoose.model("link", linkSchema);

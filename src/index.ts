@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import { string, z } from 'zod';
+import { random } from "./utils";
 import bcrypt, { hash } from 'bcrypt';
 import express from 'express';
-import { contentModel, userModel } from '../db';
+import { contentModel, userModel, linkModel } from '../db';
 import { userMiddleware } from './middleware';
 const JWT_USER_PASSWORD = "Sameer123"
 
@@ -96,7 +97,7 @@ app.post('/signin', async (req,res) => {
     }
 });
 
-app.post('/content',userMiddleware, async (req,res) => {
+app.post('/create-content',userMiddleware, async (req,res) => {
     const { link, type } = req.body;
     await contentModel.create({
         link,
@@ -110,7 +111,6 @@ app.post('/content',userMiddleware, async (req,res) => {
         message:"Content added"
     })
 })
-
 
 app.get('/your-content',async (req,res) => {
     //@ts-ignore
@@ -137,11 +137,76 @@ app.delete('/delete',userMiddleware,async (req,res) => {
     })
 })
 
-app.post('/brain/share', (req,res) =>{
-    res.send("Share")
+app.post('/brain/share',async (req,res) =>{
+    const share = req.body.share;
+    if (share) {
+            const existingLink = await linkModel.findOne({
+                // @ts-ignore
+                userId: req.userId
+            });
+
+            if (existingLink) {
+                res.json({
+                    hash: existingLink.hash
+                })
+                return;
+            }
+            const hash = random(10);
+            await linkModel.create({
+                //@ts-ignore
+                userId: req.userId,
+                hash: hash
+            })
+
+            res.json({
+                hash
+            })
+    } else {
+        await linkModel.deleteOne({
+            //@ts-ignore
+            userId: req.userId
+        });
+
+        res.json({
+            message: "Removed link"
+        })
+    }
 })
 
-app.get('/brain/:sharelink', (req,res) =>{
+app.get("/brain/:shareLink", async (req, res) => {
+    const hash = req.params.shareLink;
+
+    const link = await linkModel.findOne({
+        hash
+    });
+
+    if (!link) {
+        res.status(411).json({
+            message: "Sorry incorrect input"
+        })
+        return;
+    }
+    
+    const content = await contentModel.find({
+        userId: link.userId
+    })
+
+    console.log(link);
+    const user = await userModel.findOne({
+        _id: link.userId
+    })
+
+    if (!user) {
+        res.status(411).json({
+            message: "user not found, error should ideally not happen"
+        })
+        return;
+    }
+
+    res.json({
+        username: user.username,
+        content: content
+    })
 
 })
 
