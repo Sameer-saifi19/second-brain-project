@@ -112,7 +112,7 @@ app.post('/create-content',userMiddleware, async (req,res) => {
     })
 })
 
-app.get('/your-content',async (req,res) => {
+app.get('/your-content',userMiddleware, async (req,res) => {
     //@ts-ignore
     const userId = req.userId;
     const content = await contentModel.find({
@@ -137,7 +137,7 @@ app.delete('/delete',userMiddleware,async (req,res) => {
     })
 })
 
-app.post('/brain/share',async (req,res) =>{
+app.post('/brain/share',userMiddleware, async (req,res) =>{
     const share = req.body.share;
     if (share) {
             const existingLink = await linkModel.findOne({
@@ -173,7 +173,7 @@ app.post('/brain/share',async (req,res) =>{
     }
 })
 
-app.get("/brain/:shareLink", async (req, res) => {
+app.get("/brain/:shareLink",userMiddleware, async (req, res) => {
     const hash = req.params.shareLink;
 
     const link = await linkModel.findOne({
