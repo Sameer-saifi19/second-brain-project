@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const zod_1 = require("zod");
+const utils_1 = require("./utils");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const express_1 = __importDefault(require("express"));
 const db_1 = require("../db");
@@ -92,7 +93,7 @@ app.post('/signin', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         });
     }
 }));
-app.post('/content', middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/create-content', middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { link, type } = req.body;
     yield db_1.contentModel.create({
         link,
@@ -105,7 +106,7 @@ app.post('/content', middleware_1.userMiddleware, (req, res) => __awaiter(void 0
         message: "Content added"
     });
 }));
-app.get('/your-content', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get('/your-content', middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     //@ts-ignore
     const userId = req.userId;
     const content = yield db_1.contentModel.find({
@@ -126,9 +127,66 @@ app.delete('/delete', middleware_1.userMiddleware, (req, res) => __awaiter(void 
         message: "Content Deleted"
     });
 }));
-app.post('/brain/share', (req, res) => {
-    res.send("Share");
-});
-app.get('/brain/:sharelink', (req, res) => {
-});
+app.post('/brain/share', middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const share = req.body.share;
+    if (share) {
+        const existingLink = yield db_1.linkModel.findOne({
+            // @ts-ignore
+            userId: req.userId
+        });
+        if (existingLink) {
+            res.json({
+                hash: existingLink.hash
+            });
+            return;
+        }
+        const hash = (0, utils_1.random)(10);
+        yield db_1.linkModel.create({
+            //@ts-ignore
+            userId: req.userId,
+            hash: hash
+        });
+        res.json({
+            hash
+        });
+    }
+    else {
+        yield db_1.linkModel.deleteOne({
+            //@ts-ignore
+            userId: req.userId
+        });
+        res.json({
+            message: "Removed link"
+        });
+    }
+}));
+app.get("/brain/:shareLink", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const hash = req.params.shareLink;
+    const link = yield db_1.linkModel.findOne({
+        hash
+    });
+    if (!link) {
+        res.status(411).json({
+            message: "Sorry incorrect input"
+        });
+        return;
+    }
+    const content = yield db_1.contentModel.find({
+        userId: link.userId
+    });
+    console.log(link);
+    const user = yield db_1.userModel.findOne({
+        _id: link.userId
+    });
+    if (!user) {
+        res.status(411).json({
+            message: "user not found, error should ideally not happen"
+        });
+        return;
+    }
+    res.json({
+        username: user.username,
+        content: content
+    });
+}));
 app.listen(3000);

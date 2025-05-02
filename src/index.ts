@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
-import { string, z } from 'zod';
+import { z } from 'zod';
 import { random } from "./utils";
 import bcrypt, { hash } from 'bcrypt';
 import express from 'express';
@@ -98,10 +97,10 @@ app.post('/signin', async (req,res) => {
 });
 
 app.post('/create-content',userMiddleware, async (req,res) => {
-    const { link, type } = req.body;
+    const { link, title } = req.body;
     await contentModel.create({
+        title,
         link,
-        type,
         //@ts-ignore
         userId:req.userId,
         tags:[]
@@ -191,7 +190,6 @@ app.get("/brain/:shareLink",userMiddleware, async (req, res) => {
         userId: link.userId
     })
 
-    console.log(link);
     const user = await userModel.findOne({
         _id: link.userId
     })

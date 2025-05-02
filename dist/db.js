@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.contentModel = exports.userModel = void 0;
+exports.linkModel = exports.contentModel = exports.userModel = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const Schema = mongoose_1.default.Schema;
 const ObjectId = mongoose_1.default.Types.ObjectId;
@@ -20,3 +20,8 @@ const contentSchema = new Schema({
     userId: { type: ObjectId, ref: 'user', required: true }
 });
 exports.contentModel = mongoose_1.default.model("content", contentSchema);
+const linkSchema = new Schema({
+    hash: String,
+    userId: { type: ObjectId, ref: 'User', required: true, unique: true },
+});
+exports.linkModel = mongoose_1.default.model("link", linkSchema);
