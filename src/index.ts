@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { random } from "./utils";
 import bcrypt, { hash } from 'bcrypt';
 import express from 'express';
-import { contentModel, userModel, linkModel } from '../db';
+import { contentModel, userModel, linkModel } from './db';
 import { userMiddleware } from './middleware';
 const JWT_USER_PASSWORD = "Sameer123"
 
@@ -102,7 +102,7 @@ app.post('/create-content',userMiddleware, async (req,res) => {
         title,
         link,
         //@ts-ignore
-        userId:req.userId,
+        userId: req.userId,
         tags:[]
     })
 
@@ -125,7 +125,7 @@ app.get('/your-content',userMiddleware, async (req,res) => {
 app.delete('/delete',userMiddleware,async (req,res) => {
 
     const contentId = req.body.contentId;
-    await contentModel.deleteMany({
+    await contentModel.deleteOne({
         contentId,
         //@ts-ignore
         userId: req.userId

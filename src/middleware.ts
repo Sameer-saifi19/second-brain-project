@@ -6,19 +6,13 @@ const JWT_USER_PASSWORD = "Sameer123"
 export const userMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const header = req.headers["authorization"];
     const decoded = jwt.verify(header as string, JWT_USER_PASSWORD)
-    if (decoded) {
-        if (typeof decoded === "string") {
-            res.status(403).json({
-                message: "You are not logged in"
-            })
-            return;    
-        }
+   
+    if(decoded){
         // @ts-ignore
-        req.userId = (decoded as JwtPayload).id;
-        next()
-    } else {
-        res.status(403).json({
-            message: "You are not logged in"
+        req.userId = decoded.id
+    }else{
+        res.json({
+            message: "you are not logged in"
         })
     }
 }
