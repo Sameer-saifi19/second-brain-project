@@ -4,11 +4,13 @@ import { random } from "./utils";
 import bcrypt, { hash } from 'bcrypt';
 import express from 'express';
 import { contentModel, userModel, linkModel } from './db';
+import cors from 'cors'
 import { userMiddleware } from './middleware';
 const JWT_USER_PASSWORD = "Sameer123"
 
 const app = express();
 app.use(express.json())
+app.use(cors());
 
 app.post('/signup',async (req,res) => {
     
