@@ -4,7 +4,7 @@ import { any, ParseStatus, string } from "zod";
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Types.ObjectId;
 
-mongoose.connect("mongodb+srv://user1:CSA123@cluster0.e4e43lo.mongodb.net/brainly")
+mongoose.connect("mongodb+srv://user1:CSA123@cluster0.e4e43lo.mongodb.net/secondbrain")
 
 const userSchema = new Schema({
     username: {type:String, unique:true},
@@ -14,8 +14,9 @@ const userSchema = new Schema({
 export const userModel = mongoose.model("user", userSchema);
 
 const contentSchema = new Schema({
-    title: String,
-    link: String,
+    title: {type: String, required: true},
+    link: {type: String, required: true},
+    type: String,
     tags: [{type: ObjectId, ref:'Tag'},],
     userId: {type: ObjectId, ref:'user', required: true}
 })

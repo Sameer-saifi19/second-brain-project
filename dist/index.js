@@ -18,10 +18,12 @@ const utils_1 = require("./utils");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const express_1 = __importDefault(require("express"));
 const db_1 = require("./db");
+const cors_1 = __importDefault(require("cors"));
 const middleware_1 = require("./middleware");
 const JWT_USER_PASSWORD = "Sameer123";
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+app.use((0, cors_1.default)());
 app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const requiredbody = zod_1.z.object({
         username: zod_1.z.string().min(3).max(10),
@@ -93,11 +95,12 @@ app.post('/signin', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         });
     }
 }));
-app.post('/create-content', middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { link, title } = req.body;
+app.post('/create', middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { link, title, type } = req.body;
     yield db_1.contentModel.create({
         title,
         link,
+        type,
         //@ts-ignore
         userId: req.userId,
         tags: []

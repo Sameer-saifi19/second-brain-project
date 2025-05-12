@@ -12,6 +12,7 @@ const userMiddleware = (req, res, next) => {
     if (decoded) {
         // @ts-ignore
         req.userId = decoded.id;
+        next();
     }
     else {
         res.json({

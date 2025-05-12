@@ -98,11 +98,12 @@ app.post('/signin', async (req,res) => {
     }
 });
 
-app.post('/create-content',userMiddleware, async (req,res) => {
-    const { link, title } = req.body;
+app.post('/create',userMiddleware, async (req,res) => {
+    const { link, title,type } = req.body;
     await contentModel.create({
         title,
         link,
+        type,
         //@ts-ignore
         userId: req.userId,
         tags:[]
